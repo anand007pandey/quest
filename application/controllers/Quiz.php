@@ -7,6 +7,7 @@ class Quiz extends CI_Controller {
     {
         parent::__construct();
         $this->load->helper(array('form', 'url')); 
+        $this->load->model('common_model');
     }
 
 	public function index()
@@ -66,10 +67,32 @@ class Quiz extends CI_Controller {
 		}
 	}
 
-	public function savedata(){
-		echo "<pre>";print_r($_POST);
-		echo "<pre>";print_r($this->input->post('quest'));
-		echo "<pre>";print_r($this->input->post('answer'));
+	public function savedata(){;
+		$quest = $this->input->post('quest');
+		$type = $this->input->post('nextafter');
+		$answer = $this->input->post('answer');
+		foreach ($quest as $key => $value) {
+			$questId = $this->common_model->insertData("quiz",[
+				"text" => $value[0],
+				"type" => $type[$key][0]
+			]);
+			if($type[$key][0] == 3){
+				foreach ($answer[$key] as $key => $value) {
+					$this->common_model->insertData("answer",[
+						"text" => $value,
+						"quiz_id" => $questId
+					]);
+				}
+			}else{
+				$this->common_model->insertData("answer",[
+					"text" => $answer[$key][0],
+					"quiz_id" => $questId
+				]);
+			}
+		}
+		
+		redirect('quiz');
+
 	}
 
 }
